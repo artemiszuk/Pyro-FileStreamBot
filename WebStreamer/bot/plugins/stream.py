@@ -103,12 +103,18 @@ async def channel_receive_handler(bot, broadcast):
             quote=True,
             parse_mode="Markdown"
         )
+        file_name = get_media_file_name(log_msg)
+        stream_link = "https://{}/{}/{}".format(Var.FQDN, log_msg.message_id, file_name) if Var.ON_HEROKU or Var.NO_PORT else \
+            "http://{}:{}/{}/{}".format(Var.FQDN,
+                                     Var.PORT,
+                                     log_msg.message_id,
+                                     file_name)
         await bot.edit_message_reply_markup(
             chat_id=broadcast.chat.id,
             message_id=broadcast.message_id,
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("Get Direct Download Link", url=f"https://t.me/{(await bot.get_me()).username}?start=AbirHasan2005_{str(log_msg.message_id)}")]
+                    [InlineKeyboardButton("Direct Download Link", url=stream_link)]
                 ]
             )
         )
