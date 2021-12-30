@@ -1,7 +1,7 @@
 # (c) @EverythingSuckz | @AbirHasan2005
 
 import asyncio
-import urllib.parse
+from urllib.parse import quote_plus
 from WebStreamer.bot import StreamBot
 from WebStreamer.utils.database import Database
 from WebStreamer.utils.human_readable import humanbytes
@@ -23,7 +23,7 @@ def get_media_file_size(m):
 def get_media_file_name(m):
     media = m.video or m.document or m.audio
     if media and media.file_name:
-        return urllib.parse.quote_plus(media.file_name)
+        return media.file_name
     else:
         return None
 
@@ -72,12 +72,11 @@ async def private_receive_handler(c: Client, m: Message):
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
         file_name = get_media_file_name(m)
         file_size = humanbytes(get_media_file_size(m))
-        stream_link = "https://{}/{}/{}".format(Var.FQDN, log_msg.message_id, file_name) if Var.ON_HEROKU or Var.NO_PORT else \
-            "http://{}:{}/{}/{}".format(Var.FQDN,
+        stream_link = "https://{}/{}".format(Var.FQDN, log_msg.message_id) if Var.ON_HEROKU or Var.NO_PORT else \
+            "http://{}:{}/{}".format(Var.FQDN,
                                     Var.PORT,
-                                    log_msg.message_id,
-                                    file_name)
-
+                                    log_msg.message_id)
+        stream_link += f'/{quote_plus(file_name)}'
         msg_text = "Bruh! 😁\nYour Link Generated! 🤓\n\n📂 **File Name:** `{}`\n**File Size:** `{}`\n\n📥 **Download Link:** `{}`"
         await log_msg.reply_text(text=f"Requested by [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n**User ID:** `{m.from_user.id}`\n**Download Link:** {stream_link}", disable_web_page_preview=True, parse_mode="Markdown", quote=True)
         await m.reply_text(
@@ -104,11 +103,11 @@ async def channel_receive_handler(bot, broadcast):
             parse_mode="Markdown"
         )
         file_name = get_media_file_name(log_msg)
-        stream_link = "https://{}/{}/{}".format(Var.FQDN, log_msg.message_id, file_name) if Var.ON_HEROKU or Var.NO_PORT else \
-            "http://{}:{}/{}/{}".format(Var.FQDN,
+        stream_link = "https://{}/{}".format(Var.FQDN, log_msg.message_id) if Var.ON_HEROKU or Var.NO_PORT else \
+            "http://{}:{}/{}".format(Var.FQDN,
                                      Var.PORT,
-                                     log_msg.message_id,
-                                     file_name)
+                                     log_msg.message_id)
+        stream_link += f'/{quote_plus(file_name)}'                             
         await bot.edit_message_reply_markup(
             chat_id=broadcast.chat.id,
             message_id=broadcast.message_id,
